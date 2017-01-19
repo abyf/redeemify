@@ -1,6 +1,6 @@
 Auth::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb
-  
+
   # OmniAuth.config.test_mode = true
   config.eager_load = false
 
