@@ -29,7 +29,7 @@ case Rails.env
    Provider.create!(name: "Google", provider: "google_oauth2", email: "kiko.pineda@gmail.com")
    # Provider.create!(name: "Google", provider: "google_oauth2", email: "khlipun@gmail.com")
    Provider.create!(name: "Google", provider: "google_oauth2", email: "uzzsen@gmail.com")
-   # Provider.create!(name: "Google", provider: "google_oauth2", email: "yvesfreddyabemebouoto@gmail.com")
+   Provider.create!(name: "Google", provider: "google_oauth2", email: "yvesfreddyabemebouoto@gmail.com")
    
    # Add myself as a "Amazon" Vendor to test Vendor code uploads
    # Note that you must also modify config/application.yml to contain the AMAZON_KEY and AMAZON_SECRET for your Amazon
@@ -37,5 +37,5 @@ case Rails.env
    Vendor.create!(name: "Amazon", provider: "amazon_oath2", email: "matthew.r.lindsey@gmail.com",  description: "AWS Testing",
                   website: "matthewrlindsey.org", helpLink: "matthewrlindsey.org/help", cashValue: "$8")
    Vendor.create!(name: "Alexander", provider: "google_oauth2", email: "khlipun@gmail.com")
-   Vendor.create!(name: "Freddy", provider: "google_oauth2", email: "yvesfreddyabemebouoto@gmail.com",cashValue: "$7")
+   #Vendor.create!(name: "Freddy", provider: "google_oauth2", email: "yvesfreddyabemebouoto@gmail.com",cashValue: "$7")
 end
