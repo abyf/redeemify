@@ -2,7 +2,8 @@ class ApplicationController < ActionController::Base
   # protect_from_forgery
 
   protect_from_forgery with: :exception
-  helper_method :current_user, :current_provider, :current_vendor
+  helper_method :current_user, :current_provider, :current_vendor,
+    :current_offeror
 
 private
 
@@ -16,6 +17,14 @@ private
 
   def current_vendor
     @vendor ||= Vendor.find(session[:vendor_id]) if session[:vendor_id]
+  end
+  
+  def current_offeror
+    if params[:controller] == "providers"
+      current_provider
+    else
+      current_vendor
+    end
   end
   
   def validation_errors_content(err_Hash)

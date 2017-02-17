@@ -2,30 +2,11 @@ require 'rubygems'
 require 'google_chart'
 
 class VendorsController < ApplicationController
-
+  include Import
+  include ActiveSupport::Inflector
+  
   def index
     # @vendor = Vendor.find(session[:vendor_id])
-  end
-
-  def import
-    if params[:file].nil?
-      redirect_to '/vendors/upload_page',
-      :flash => { :error => "You have not selected a file to upload" }
-    else
-      import_status = Vendor.import(params[:file], current_vendor,
-                    params[:comment], "vendor")
-      fail_codes = import_status[:err_codes]
-      if import_status[:err_file]
-        flash[:error] = import_status[:err_file]
-        redirect_to '/vendors/upload_page'      
-      elsif fail_codes > 0
-        content = validation_errors_content(import_status)
-        send_data(content, :filename => "#{fail_codes}_#{'code'.pluralize(fail_codes)}_rejected_at_submission_details.txt")
-      else
-        flash[:notice] = "#{import_status[:submitted_codes]} #{'code'.pluralize(import_status[:submitted_codes])} imported"
-        redirect_to '/vendors/home'
-      end
-    end
   end
 
   def home
