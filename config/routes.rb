@@ -60,7 +60,7 @@ Auth::Application.routes.draw do
 
   resources :providers do
     collection do
-      post :import2
+      post :import
       post :update_profile
       get :remove_codes
     end

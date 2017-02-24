@@ -11,7 +11,6 @@ class Vendor < ActiveRecord::Base
 		self.removedCodes = 0
 	end
 
-
   	def self.import(file, current, comment, type)
         
         serialize_errors, serialized_codes, date = {submitted_codes: 0}, 0, ""
@@ -95,8 +94,21 @@ class Vendor < ActiveRecord::Base
   		return contents
   	end
 
-
+	# in our controller, in import.rb:
+	# @histories_array = Vendor.homeSet(current_offeror.history)
+	# look at line 102
+	# 'current_offeror.history' substitutes 'histories' when we
+	# invoke this method from the import.rb
   	def self.homeSet(histories)
+  		# It means when we instantiate @histories_array in import.rb,
+  		# we invoke this method with current_offeror.history as a parameter
+  		# so, 
+  		# to interpret next line:
+  		# current_offeror.history = current_offeror.history.split("|||||")
+  		# and so on
+  		# where 'history' is the attribute of the providers/vendors instance,
+  		# look at the db/schema.rb, line 54 (it's a column in database) yes
+  		# Good!!! Let's continue  ok
 		histories = histories.split("|||||")
 
 		histories_array=[]

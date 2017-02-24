@@ -2,52 +2,13 @@ require 'rubygems'
 require 'google_chart'
 
 class VendorsController < ApplicationController
-
+  include Import
+  include ActiveSupport::Inflector
+  
   def index
     # @vendor = Vendor.find(session[:vendor_id])
   end
-
-  def import
-    if params[:file].nil?
-      redirect_to '/vendors/upload_page',
-      :flash => { :error => "You have not selected a file to upload" }
-    else
-      import_status = Vendor.import(params[:file], current_vendor,
-                    params[:comment], "vendor")
-      fail_codes = import_status[:err_codes]
-      if import_status[:err_file]
-        flash[:error] = import_status[:err_file]
-        redirect_to '/vendors/upload_page'      
-      elsif fail_codes > 0
-        content = validation_errors_content(import_status)
-        send_data(content, :filename => "#{fail_codes}_#{'code'.pluralize(fail_codes)}_rejected_at_submission_details.txt")
-      else
-        flash[:notice] = "#{import_status[:submitted_codes]} #{'code'.pluralize(import_status[:submitted_codes])} imported"
-        redirect_to '/vendors/home'
-      end
-    end
-  end
-
-  def home
-
-    @histories_array = []
-    if current_vendor.history != nil
-      @histories_array = Vendor.homeSet(current_vendor.history)
-    end
-
-    @hash = { "uploaded" => current_vendor.uploadedCodes,
-              "used" => current_vendor.usedCodes,
-              "unclaim" => current_vendor.unclaimCodes,
-              "removed" => current_vendor.removedCodes }
-    gon.codes = @hash
-    gon.history = current_vendor.history
-
-  end
-
-  def upload_page
-    @vendorcodes= current_vendor.vendorCodes.all
-  end
-
+  
   def profile
     @vendorcodes = current_vendor.vendorCodes.all
   end
@@ -68,29 +29,7 @@ class VendorsController < ApplicationController
     redirect_to '/vendors/home', notice: "Profile Updated"
   end
 
-  def remove_codes  # :usedCodes, :uploadedCodes, :totalCodes,
-                    # :unclaimCodes, :removedCodes
-    flag = current_vendor.vendorCodes.where(:user_id => nil)
-    if flag.count == 0
-      redirect_to '/vendors/home',
-      :flash => { :error => "There's No Unclaimed Codes" }
-    else
-      contents = Vendor.remove_unclaimed_codes(current_vendor,"vendor")
-      send_data contents,  :filename => "Unclaimed_Codes.txt" 
-    end
-  end
-
-
-  def clear_history
-    if current_vendor.history.nil?
-      redirect_to '/vendors/home', :flash => { :error => "History is empty" }
-    else  
-      current_vendor.update_attribute(:history, nil)
-      redirect_to '/vendors/home', notice: "Cleared History"
-    end
-  end
-
-  def change_to_user
+   def change_to_user
     current_user = User.find_by_provider_and_email(current_vendor.provider,
                     current_vendor.email)
     if current_user.nil?
