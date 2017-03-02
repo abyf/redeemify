@@ -1,5 +1,7 @@
 module Import
   
+  def upload_page
+  end  
   
   def import
     if params[:file].nil?
@@ -87,10 +89,6 @@ module Import
       send_data contents, :filename => "Unclaimed_Codes.txt"
     end
   end 
-  
-  def upload_page
-  end
-  
 end
 
 
