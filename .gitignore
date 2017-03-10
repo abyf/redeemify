@@ -1,6 +1,7 @@
 coverage/
 tmp/
 log/
+useful/
 public/assets
 db/*.sqlite3
 .idea/
@@ -13,4 +14,3 @@ config/application.yml
 .ruby-gemset
 .rvmrc
 .tool-versions
-
