@@ -10,41 +10,6 @@ class Vendor < ActiveRecord::Base
 		self.unclaimCodes = 0
 		self.removedCodes = 0
 	end
-	
-	# self means class name. Vendor.import in our case
-	# with 4 arguments (file, current, comment, type)
-	# Let's consider these arguments
-	# The general purpose of this method is to upload file with codes and
-	# optional comment
-	# This method is in Vendor model, but used by both offerors - providers and
-	# vendors
-	# So, file is the txt file with codes in appropriate format (each code on a 
-	# new line)
-	# current means current offeror (who is authenticated)
-	# current user with specific ID
-	# comment is the comment
-	# type determines the offeror type - vendor or provider
-	# Is it clear?   Very clear
-	# Let's inspect this method
-	# Let me rename variables to make their purpose clearer
-	# Controllers and models tightly connected
-	# To refactor controller method we start with corresponding model method that
-	# invoked by the offeror import method
-	# You'll see later why we are doing this
-	# Freddy? yes
-	# I propose to eliminate fouth argument - type  Why?
-	# Generally, with good architecture, method should have 1-2 arguments
-	# If it has more, it means, that it includes more that one idea
-	# When we inspect this method attentively, we'll find that
-	# 'type' is a string argument with two reasonable values in our case -
-	# "vendor" or "provider"
-	# if "vendor" - one path
-	# if "provider" - another path
-	# We can improve it     hmmm
-	# 1 minute please   ok
-	# Look, when this argument is checked
-	# Line 60
-	# 
   	def self.import(file, current, comment)
         
         processed_codes, approved_codes, date = { submitted_codes: 0 }, 0, ""
@@ -52,42 +17,15 @@ class Vendor < ActiveRecord::Base
         processed_codes[:err_file] = file_check file.path
         return processed_codes if processed_codes[:err_file]
         
-        # Here we open uploaded file with codes
     	f = File.open(file.path, "r")
-    	# process each line in a file
-    	# by instruction in one line should be one code
 		f.each_line do |row|
 			row = row.gsub(/\s+/, "") # gsub eliminates spaces in a row
-			if row !=  ""   # if row is empty, there are no code
-			# we process only lines that are not empty
-			# Any questions here?  I can't really put questions now, 
-			# Continue then
-			# Will be clearer later    ok
-			# it is a hash, where :submitted_codes is key,
-			# default value is 0, and
-			# when we proceed every line, the number += 1
-			# it will reflect the total number of processed lines (codes)
-			# some of them will be rejected, other will be approved
-			# the criterias defined in the models vendor_code.rb and
-			# redeemify_codes.rb (validations)
-			# Continue  
-			# Start processing the file
+			if row !=  ""
 			  processed_codes[:submitted_codes] +=1
 			  begin
-			  # here we can extract a method
-			  # It's purpose is to add codes
-			  # Let's name it add_code
-			  # It will have 2 arguments - offeror and code
-			  # Let's copy these lines and define the method below
-			  # We have extracted the following functionality into add_code method
 			  a = add_code(current, row)
 			  a.save!
 			  approved_codes += 1
-			  # Thereby be have eliminated 'type' argument
-			  # Now the type of offeror will be defined inside add_code method
-			  # by the condition
-			  # if offeror.is_a? Vendor
-			  # if it returns true, then offeror is Vendor, else - Provider
 			  rescue
 			    err_str = a.errors[:code].join(', ')
 			    processed_codes[err_str] ||=[]
@@ -95,7 +33,7 @@ class Vendor < ActiveRecord::Base
 			  end
 			    processed_codes[:err_codes] = processed_codes[:submitted_codes] - approved_codes
 			end
-		end # end CSV.foreach
+		end
 		f.close
 		history = current.history
 
@@ -123,6 +61,8 @@ class Vendor < ActiveRecord::Base
   	end # end self.profile()
 
   	def self.remove_unclaimed_codes(current, type)
+  		# It's a long method but it's purpose also very simple
+  		# The essense is in lines 143-145
   		unclaimed = ""
   		if type == "vendor"
   			unclaimedCodes=current.vendorCodes.where(:user_id => nil)
@@ -148,21 +88,7 @@ class Vendor < ActiveRecord::Base
   		return contents
   	end
 
-	# in our controller, in import.rb:
-	# @histories_array = Vendor.homeSet(current_offeror.history)
-	# look at line 102
-	# 'current_offeror.history' substitutes 'histories' when we
-	# invoke this method from the import.rb
   	def self.homeSet(histories)
-  		# It means when we instantiate @histories_array in import.rb,
-  		# we invoke this method with current_offeror.history as a parameter
-  		# so, 
-  		# to interpret next line:
-  		# current_offeror.history = current_offeror.history.split("|||||")
-  		# and so on
-  		# where 'history' is the attribute of the providers/vendors instance,
-  		# look at the db/schema.rb, line 54 (it's a column in database) yes
-  		# Good!!! Let's continue  ok
 		histories = histories.split("|||||")
 
 		histories_array=[]
@@ -189,11 +115,6 @@ class Vendor < ActiveRecord::Base
     private
     
   	def self.add_code(offeror, code)
-  		# We have to check who is the offeror
-  		# That's it
-  		# Let's rewrite this line in more rubyistic way  ok
-  		# Looks better
-  		# Now we can back to our import method
 			if offeror.is_a? Vendor
  				offeror.vendorCodes.build(code: code, name: offeror.name,
  					vendor: offeror)

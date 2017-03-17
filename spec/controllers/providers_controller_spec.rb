@@ -2,7 +2,8 @@ require 'spec_helper'
 require 'rails_helper'
 
 describe ProvidersController do
-  describe "#home" do
+  # home action
+  describe "GET #home" do
     render_views
     
     it "renders the about template" do
@@ -30,21 +31,24 @@ describe ProvidersController do
     end
   end
 
-  describe "#edit" do
+  # edit action in providers_controller.rb
+  describe "GET #edit" do
      it "renders the about template" do
         get :edit
         expect(response).to render_template :edit
     end
   end
 
-  describe "#index" do
+  # index action
+  describe "GET #index" do
      it "renders the about template" do
         get 'index' # or :new
         expect(response).to render_template :index
     end
   end
 
-  describe "#upload_page" do
+  # upload_page action
+  describe "GET #upload_page" do
     render_views
 
     it "renders the upload page with the provider name" do
@@ -56,7 +60,7 @@ describe ProvidersController do
     end
   end
   
-  describe "#import2" do
+  describe "POST #import" do
     render_views
     before do
       @hash = {err_codes: 0, submitted_codes: 5}
@@ -91,5 +95,28 @@ describe ProvidersController do
       expect(controller).to receive(:send_data).with(content, file) {controller.render nothing: true}
       post :import, file: !nil
     end  
+  end
+  
+  describe "GET #remove_codes" do
+    before do
+      @provider = create(:provider)
+    end
+    it "displays the error message when there are no unclaimed codes" do
+      @provider.unclaimCodes = 0
+      allow(controller).to receive(:current_provider).and_return(@provider)
+      get :remove_codes
+      expect(response).to redirect_to(:providers_home)
+      expect(flash[:error]).to eq("There are no unclaimed codes")
+    end
+    it "removes unclaimed codes" do
+      create_list(:redeemify_code, 5, provider_id: @provider.id)
+      @provider.unclaimCodes = 5
+      expect(@provider.redeemifyCodes.count).to eq(5)
+      expect(@provider.unclaimCodes).to eq(5)
+      allow(controller).to receive(:current_provider).and_return(@provider)
+      get :remove_codes
+      expect(@provider.redeemifyCodes.count).to eq(0)
+      expect(@provider.unclaimCodes).to eq(0)
+    end
   end
 end

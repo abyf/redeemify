@@ -50,11 +50,12 @@ module Import
   end
 
   def remove_codes
-    flag = offeror_codes.where(:user_id => nil)
-    if flag.count == 0
+    if offeror_codes.where(:user_id => nil).count.zero?
       redirect_to "/#{params[:controller]}/home",
-      :flash => { :error => "There's No Unclaimed Codes" }
+      :flash => { :error => "There are no unclaimed codes" }
     else
+      # Look, here we invoke remove_unclaimed_codes in Vendor model
+      # Open app/models/vendor.rb
       contents = Vendor.remove_unclaimed_codes(current_offeror, singularize("#{params[:controller]}"))
       send_data contents, :filename => "Unclaimed_Codes.txt"
     end
